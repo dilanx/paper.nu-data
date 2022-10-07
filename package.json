@@ -1,0 +1,21 @@
+{
+  "name": "paper.nu-data",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Data automation for paper.nu",
+  "prettier": "@dilanx/config/prettier",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Dilan Nair (https://www.dilanxd.com)",
+  "license": "ISC",
+  "devDependencies": {
+    "@dilanx/config": "^1.1.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "node-fetch": "^3.2.10"
+  }
+}
