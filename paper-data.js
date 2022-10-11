@@ -37,6 +37,14 @@ const argv = yargs(process.argv.slice(2))
         type: 'boolean',
       })
   )
+  .command('schedule', 'Parse schedule course data', (yargs) =>
+    yargs.option('out', {
+      alias: 'o',
+      describe: 'Output file',
+      demandOption: true,
+      type: 'string',
+    })
+  )
   .help('h')
   .alias('h', 'help')
   .demandCommand(1)
@@ -48,9 +56,6 @@ if (command === 'plan') {
   const { out, prev, next, compare, 'compare-verbose': compareVerbose } = argv;
   const data = parsePlan(prev, next);
   if (!data) {
-    console.error(
-      'An error occurred while trying to parse the data. Maybe a file you provided does not exist?'
-    );
     process.exit(1);
   }
   const { newData, oldData } = data;

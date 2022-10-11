@@ -1,3 +1,4 @@
+import { log } from '../log.js';
 import {
   colors,
   parseDistro,
@@ -74,8 +75,13 @@ function addToLegacy(oldLegacy, oldCourses, newCourses) {
 }
 
 export function parse(prevJsonFile, newCsvFile) {
+  log.task('Parsing plan data...');
+
   const oldData = loadPrevData(prevJsonFile);
-  if (!oldData) return;
+  if (!oldData) {
+    log.failure('Failed to load old data (json).');
+    return;
+  }
   const {
     courses: oldCourses,
     majors: oldMajors,
@@ -91,7 +97,10 @@ export function parse(prevJsonFile, newCsvFile) {
   } = prepare(oldCourses, oldMajors);
 
   const newData = loadNewData(newCsvFile);
-  if (!newData) return;
+  if (!newData) {
+    log.failure('Failed to load new data (csv).');
+    return;
+  }
 
   records: for (const record of newData) {
     const major = clean(record['Subject']);
@@ -171,6 +180,12 @@ export function parse(prevJsonFile, newCsvFile) {
   const { courses, major_ids } = finalize(majors, coursesPerMajor);
 
   const legacy = addToLegacy(oldLegacy, oldCourses, courses);
+
+  log.success(
+    `Parsed ${courses.length} courses over ${
+      Object.keys(majors).length
+    } subjects.`
+  );
 
   return {
     newData: {
