@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Data automation for paper.nu",
   "prettier": "@dilanx/config/prettier",
-  "main": "index.js",
+  "main": "paper-data.js",
   "scripts": {
     "start": "node index.js"
   },
@@ -15,7 +15,10 @@
     "@dilanx/config": "^1.1.0"
   },
   "dependencies": {
+    "chalk": "^5.1.0",
+    "csv-parse": "^5.3.0",
     "dotenv": "^16.0.3",
-    "node-fetch": "^3.2.10"
+    "node-fetch": "^3.2.10",
+    "yargs": "^17.6.0"
   }
 }
