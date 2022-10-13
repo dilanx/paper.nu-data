@@ -2,6 +2,7 @@ import fs from 'fs';
 import yargs from 'yargs';
 import { parse as parsePlan } from './src/plan/index.js';
 import { parse as parseSchedule } from './src/schedule/index.js';
+import { publish as publishPlan } from './src/plan/publish.js';
 import { publish as publishSchedule } from './src/schedule/publish.js';
 import { compare as comparePlan } from './src/plan/compare.js';
 import * as dotenv from 'dotenv';
@@ -63,6 +64,11 @@ const argv = yargs(process.argv.slice(2))
         describe: 'Print a detailed comparison of old and new data',
         type: 'boolean',
       })
+      .option('publish', {
+        alias: 'p',
+        describe: 'Publish plan data to CDN',
+        type: 'boolean',
+      })
   )
   .command(
     'schedule',
@@ -111,7 +117,7 @@ const argv = yargs(process.argv.slice(2))
 const command = argv._[0];
 
 if (command === 'plan') {
-  const { out, prev, next, compare, compareVerbose } = argv;
+  const { out, prev, next, compare, compareVerbose, publish } = argv;
   const data = parsePlan(prev, next);
   if (!data) {
     process.exit(1);
@@ -121,6 +127,12 @@ if (command === 'plan') {
 
   if (compare || compareVerbose) {
     comparePlan(oldData, newData, compareVerbose);
+  }
+
+  if (publish) {
+    publishPlan(newData).catch((err) => {
+      log.failure(err, 0, true).finally(() => process.exit(1));
+    });
   }
 }
 
