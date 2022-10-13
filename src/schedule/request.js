@@ -140,6 +140,9 @@ export async function getAllClasses(term, group, subject) {
     s['ASSOCIATED_CLASS']?.forEach((a) => {
       const a_section = a['SECTION'];
       const a_component = a['COMPONENT'];
+      if (a_section === 'NO DATA' || a_component === 'NO DATA') {
+        return;
+      }
       const a_section_id = `${course_id}-${a['SECTION']}`;
       if (associated[course_id].some((x) => x.i === a_section_id)) {
         return;
@@ -148,7 +151,7 @@ export async function getAllClasses(term, group, subject) {
       let a_meeting_days;
       let a_start_time, a_end_time;
       if (a['CLASS_MTG_INFO2'] && a['CLASS_MTG_INFO2'].length > 0) {
-        const { ROOM, MEETING_TIME } = s['CLASS_MTG_INFO2'][0];
+        const { ROOM, MEETING_TIME } = a['CLASS_MTG_INFO2'][0];
         if (ROOM) {
           a_room = clean(ROOM);
         }
