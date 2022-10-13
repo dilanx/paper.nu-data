@@ -140,39 +140,42 @@ if (command === 'plan') {
 
 if (command === 'schedule') {
   const { out, term, min, publish, manualPublish, latest } = argv;
-  if (latest) {
-    setMapFileLatest(dataMapFile, latest);
-  } else if (manualPublish) {
-    const data = JSON.parse(fs.readFileSync(manualPublish));
-    publishSchedule(
-      dataMapFile,
-      data,
-      { term: '0', name: 'manual' },
-      false
-    ).catch((err) => {
+
+  const runSchedule = async () => {
+    if (latest) {
+      setMapFileLatest(dataMapFile, latest);
+    } else if (manualPublish) {
+      const data = JSON.parse(fs.readFileSync(manualPublish));
+      await publishSchedule(
+        dataMapFile,
+        data,
+        { term: '0', name: 'manual' },
+        false
+      );
+    } else {
+      const { data, term } = await parseSchedule(term);
+
+      if (!data) {
+        process.exit(1);
+      }
+      if (out) {
+        fs.writeFileSync(out, JSON.stringify(data, null, 2));
+      }
+      if (min) {
+        fs.writeFileSync(min, JSON.stringify(data));
+      }
+
+      if (publish) {
+        await publishSchedule(dataMapFile, data, term, true);
+      }
+    }
+  };
+
+  runSchedule()
+    .then(() => {
+      process.exit(0);
+    })
+    .catch((err) => {
       log.failure(err, 0, true).finally(() => process.exit(1));
     });
-  } else {
-    parseSchedule(term)
-      .then(({ data, term }) => {
-        if (!data) {
-          process.exit(1);
-        }
-        if (out) {
-          fs.writeFileSync(out, JSON.stringify(data, null, 2));
-        }
-        if (min) {
-          fs.writeFileSync(min, JSON.stringify(data));
-        }
-
-        if (publish) {
-          publishSchedule(dataMapFile, data, term, true).catch((err) => {
-            log.failure(err, 0, true).finally(() => process.exit(1));
-          });
-        }
-      })
-      .catch((err) => {
-        log.failure(err, 0, true).finally(() => process.exit(1));
-      });
-  }
 }
