@@ -65,6 +65,7 @@ export async function getAllClasses(term, group, subject) {
   }
 
   const data = {};
+  const associated = {};
 
   const sections = json?.['NW_CD_DTL_ALLCLS_RESP']?.['CLASSDESCR'];
 
@@ -86,6 +87,7 @@ export async function getAllClasses(term, group, subject) {
         n: number,
         s: [],
       };
+      associated[course_id] = [];
     }
 
     const section_id = `${course_id}-${section}`;
@@ -135,6 +137,48 @@ export async function getAllClasses(term, group, subject) {
       enrl_req = clean(ENRL_REQ_VALUE);
     }
 
+    s['ASSOCIATED_CLASS']?.forEach((a) => {
+      const a_section = a['SECTION'];
+      const a_component = a['COMPONENT'];
+      const a_section_id = `${course_id}-${a['SECTION']}`;
+      if (associated[course_id].some((x) => x.i === a_section_id)) {
+        return;
+      }
+      let a_room;
+      let a_meeting_days;
+      let a_start_time, a_end_time;
+      if (a['CLASS_MTG_INFO2'] && a['CLASS_MTG_INFO2'].length > 0) {
+        const { ROOM, MEETING_TIME } = s['CLASS_MTG_INFO2'][0];
+        if (ROOM) {
+          a_room = clean(ROOM);
+        }
+        if (MEETING_TIME) {
+          const {
+            meeting_days: md,
+            start_time: st,
+            end_time: et,
+          } = parseMeetingTime(clean(MEETING_TIME));
+          a_meeting_days = md;
+          a_start_time = st;
+          a_end_time = et;
+        }
+      }
+      associated[course_id].push({
+        i: a_section_id,
+        t: title,
+        u: subject,
+        n: number,
+        s: a_section,
+        m: a_meeting_days,
+        x: a_start_time,
+        y: a_end_time,
+        l: a_room,
+        d: start_date,
+        e: end_date,
+        c: a_component,
+      });
+    });
+
     data[course_id].s.push({
       i: section_id,
       r: instructors,
@@ -157,6 +201,9 @@ export async function getAllClasses(term, group, subject) {
   const scheduleData = [];
 
   for (const course_id in data) {
+    for (const a of associated[course_id]) {
+      data[course_id].s.push(a);
+    }
     scheduleData.push(data[course_id]);
   }
 
