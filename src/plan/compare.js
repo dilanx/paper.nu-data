@@ -35,8 +35,8 @@ function compareCourses(
   newLegacy,
   detailed
 ) {
-  const oId = oldCourses.map((x) => x.id);
-  const nId = newCourses.map((x) => x.id);
+  const oId = oldCourses.map((x) => x.i);
+  const nId = newCourses.map((x) => x.i);
 
   const added = nId.filter((x) => !oId.includes(x));
   const removed = oId.filter((x) => !nId.includes(x));
@@ -52,8 +52,8 @@ function compareCourses(
     }`
   );
 
-  const oLegacy = oldLegacy.map((x) => x.id);
-  const nLegacy = newLegacy.map((x) => x.id);
+  const oLegacy = oldLegacy.map((x) => x.i);
+  const nLegacy = newLegacy.map((x) => x.i);
 
   const addedLegacy = nLegacy.filter((x) => !oLegacy.includes(x));
   const removedLegacy = oLegacy.filter((x) => !nLegacy.includes(x));

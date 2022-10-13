@@ -39,7 +39,6 @@ const argv = yargs(process.argv.slice(2))
       .option('out', {
         alias: 'o',
         describe: 'Output file',
-        demandOption: true,
         type: 'string',
       })
       .option('prev', {
@@ -123,7 +122,10 @@ if (command === 'plan') {
     process.exit(1);
   }
   const { newData, oldData } = data;
-  fs.writeFileSync(out, JSON.stringify(newData, null, 2));
+
+  if (out) {
+    fs.writeFileSync(out, JSON.stringify(newData, null, 2));
+  }
 
   if (compare || compareVerbose) {
     comparePlan(oldData, newData, compareVerbose);

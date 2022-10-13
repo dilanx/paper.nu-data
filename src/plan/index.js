@@ -21,23 +21,23 @@ function prepare(prevCourses, prevMajors) {
   let lastColor = -1;
   for (const major in prevMajors) {
     coursesPerMajor[major] = [];
-    const { id, color, display } = prevMajors[major];
+    const { i, c, d } = prevMajors[major];
     majors[major] = {
-      id,
-      color,
-      display,
+      i,
+      c,
+      d,
     };
 
-    const idn = parseInt(id);
+    const idn = parseInt(i);
 
     if (idn > maxId) {
       maxId = idn;
-      lastColor = colors.indexOf(color);
+      lastColor = colors.indexOf(c);
     }
   }
 
   for (const course of prevCourses) {
-    if (course.placeholder) {
+    if (course.l) {
       coursesPerMajor['PLACEHOLDER'].push(course);
     }
   }
@@ -49,14 +49,14 @@ function finalize(majors, coursesPerMajor) {
   const courses = [];
   for (const major in coursesPerMajor) {
     courses.push(
-      ...coursesPerMajor[major].sort((a, b) => a.id.localeCompare(b.id))
+      ...coursesPerMajor[major].sort((a, b) => a.i.localeCompare(b.i))
     );
   }
 
   const major_ids = {};
 
   for (const major in majors) {
-    major_ids[majors[major].id] = major;
+    major_ids[majors[major].i] = major;
   }
 
   return { courses, major_ids };
@@ -66,7 +66,7 @@ function addToLegacy(oldLegacy, oldCourses, newCourses) {
   const legacy = [...oldLegacy];
 
   for (const course of oldCourses) {
-    if (!newCourses.some((c) => c.id === course.id)) {
+    if (!newCourses.some((c) => c.i === course.i)) {
       legacy.push(course);
     }
   }
@@ -111,19 +111,19 @@ export function parse(prevJsonFile, newCsvFile) {
       lastId++;
       lastColor = (lastColor + 1) % colors.length;
       majors[major] = {
-        id: threeDigits(lastId),
-        color: colors[lastColor],
+        i: threeDigits(lastId),
+        c: colors[lastColor],
       };
     }
 
-    majors[major].display = clean(record['Subject Descr']);
+    majors[major].d = clean(record['Subject Descr']);
 
     const course = {
-      id: `${major} ${number}`,
+      i: `${major} ${number}`,
     };
 
     for (const c of coursesPerMajor[major]) {
-      if (c.id === course.id) {
+      if (c.i === course.i) {
         const checkDistro = clean(
           record['Course Attribute Descr']
         ).toLowerCase();
@@ -131,10 +131,10 @@ export function parse(prevJsonFile, newCsvFile) {
           let di = parseDistro(clean(record['Course Attribute Value Descr']));
 
           if (di) {
-            if (c.distros) {
-              c.distros += `${di}`;
+            if (c.s) {
+              c.s += `${di}`;
             } else {
-              c.distros = `${di}`;
+              c.s = `${di}`;
             }
           }
         }
@@ -142,37 +142,27 @@ export function parse(prevJsonFile, newCsvFile) {
       }
     }
 
-    course.name = clean(record['Long Course Title']);
-    course.units = clean(record['Min Units']);
-    course.repeatable = repeatable(clean(record['Repeatable for Credit']));
+    course.n = clean(record['Long Course Title']);
+    course.u = clean(record['Min Units']);
+    course.r = repeatable(clean(record['Repeatable for Credit']));
 
     const { description, prerequisites } = parseDescription(
       clean(record['Course Description'])
     );
     if (description) {
-      course.description = description;
+      course.d = description;
     }
     if (prerequisites) {
-      course.prerequisites = prerequisites;
-    }
-
-    const offered = parseTermsOffered(
-      clean(record['Course Typically Offered'])
-    );
-    if (offered) {
-      course.offered = offered;
+      course.p = prerequisites;
     }
 
     const checkDistro = clean(record['Course Attribute Descr']).toLowerCase();
     if (checkDistro.includes('distribution')) {
       let di = parseDistro(clean(record['Course Attribute Value Descr']));
       if (di) {
-        course.distros = `${di}`;
+        course.s = `${di}`;
       }
     }
-
-    course.career = clean(record['Career Descr']);
-    course.nu_id = clean(record['Course ID']);
 
     coursesPerMajor[major].push(course);
   }

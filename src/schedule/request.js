@@ -79,12 +79,12 @@ export async function getAllClasses(term, group, subject) {
     const section = s['SECTION'];
     if (!data[course_id]) {
       data[course_id] = {
-        course_id,
-        school: group,
-        title,
-        subject,
-        number,
-        sections: [],
+        i: course_id,
+        c: group,
+        t: title,
+        u: subject,
+        n: number,
+        s: [],
       };
     }
 
@@ -93,12 +93,12 @@ export async function getAllClasses(term, group, subject) {
 
     if (s['INSTRUCTOR']) {
       instructors = s['INSTRUCTOR'].map((i) => ({
-        name: clean(i['DISPLAY_NAME']),
-        phone: clean(i['PHONE']),
-        campus_address: clean(i['CAMPUS_ADDR']),
-        office_hours: clean(i['OFFICE_HOURS']),
-        bio: clean(i['INST_BIO']),
-        url: clean(i['URL']),
+        n: clean(i['DISPLAY_NAME']),
+        p: clean(i['PHONE']),
+        a: clean(i['CAMPUS_ADDR']),
+        o: clean(i['OFFICE_HOURS']),
+        b: clean(i['INST_BIO']),
+        u: clean(i['URL']),
       }));
     }
 
@@ -109,9 +109,7 @@ export async function getAllClasses(term, group, subject) {
     if (s['CLASS_MTG_INFO'] && s['CLASS_MTG_INFO'].length > 0) {
       const { ROOM, MEETING_TIME } = s['CLASS_MTG_INFO'][0];
       if (ROOM) {
-        room = {
-          building_name: clean(ROOM),
-        };
+        room = clean(ROOM);
       }
       if (MEETING_TIME) {
         const {
@@ -138,21 +136,21 @@ export async function getAllClasses(term, group, subject) {
     }
 
     data[course_id].sections.push({
-      section_id,
-      instructors,
-      title,
-      subject,
-      number,
-      section,
-      meeting_days,
-      start_time,
-      end_time,
-      room,
-      start_date,
-      end_date,
-      component,
-      capacity,
-      enrl_req,
+      i: section_id,
+      r: instructors,
+      t: title,
+      u: subject,
+      n: number,
+      s: section,
+      m: meeting_days,
+      x: start_time,
+      y: end_time,
+      l: room,
+      d: start_date,
+      e: end_date,
+      c: component,
+      a: capacity,
+      q: enrl_req,
     });
   }
 
