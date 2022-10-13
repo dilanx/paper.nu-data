@@ -153,7 +153,7 @@ if (command === 'schedule') {
         false
       );
     } else {
-      const { data, term } = await parseSchedule(term);
+      const { data, term: newTerm } = await parseSchedule(term);
 
       if (!data) {
         process.exit(1);
@@ -166,7 +166,7 @@ if (command === 'schedule') {
       }
 
       if (publish) {
-        await publishSchedule(dataMapFile, data, term, true);
+        await publishSchedule(dataMapFile, data, newTerm, true);
       }
     }
   };
