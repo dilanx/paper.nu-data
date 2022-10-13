@@ -144,7 +144,7 @@ export async function getAllClasses(term, group, subject) {
         return;
       }
       const a_section_id = `${course_id}-${a['SECTION']}`;
-      if (associated[course_id].some((x) => x.i === a_section_id)) {
+      if (data[course_id].s.some((x) => x.i === a_section_id)) {
         return;
       }
       let a_room;
@@ -166,7 +166,7 @@ export async function getAllClasses(term, group, subject) {
           a_end_time = et;
         }
       }
-      associated[course_id].push({
+      data[course_id].s.push({
         i: a_section_id,
         t: title,
         u: subject,
@@ -199,14 +199,15 @@ export async function getAllClasses(term, group, subject) {
       a: capacity,
       q: enrl_req,
     });
+
+    data[course_id].s = data[course_id].s.sort(
+      (a, b) => parseInt(a.s) - parseInt(b.s)
+    );
   }
 
   const scheduleData = [];
 
   for (const course_id in data) {
-    for (const a of associated[course_id]) {
-      data[course_id].s.push(a);
-    }
     scheduleData.push(data[course_id]);
   }
 
