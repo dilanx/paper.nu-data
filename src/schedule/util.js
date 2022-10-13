@@ -8,7 +8,7 @@ const days = {
 
 function parseDays(meetingDays) {
   let md = '';
-  for (const day in day) {
+  for (const day in days) {
     if (meetingDays.includes(day)) {
       md += days[day];
     }
@@ -30,9 +30,20 @@ function parseTime(time) {
 export function parseMeetingTime(meetingTime) {
   // MoWeFri 1:00PM - 1:50PM
   const [meetingDays, start, , end] = meetingTime.split(' ');
+  if (!meetingDays || !start || !end) {
+    return {};
+  }
   return {
     meeting_days: parseDays(meetingDays),
     start_time: parseTime(start),
     end_time: parseTime(end),
   };
+}
+
+export function clean(s) {
+  if (!s) return;
+  if (typeof s === 'string') {
+    return s.replace(/\s\s+/g, ' ').trim();
+  }
+  return s;
 }

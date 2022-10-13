@@ -1,7 +1,34 @@
 import fs from 'fs';
 import yargs from 'yargs';
 import { parse as parsePlan } from './src/plan/index.js';
+import { parse as parseSchedule } from './src/schedule/index.js';
+import { publish as publishSchedule } from './src/schedule/publish.js';
 import { compare as comparePlan } from './src/plan/compare.js';
+import * as dotenv from 'dotenv';
+import { join } from 'path';
+import { homedir } from 'os';
+import { setMapFileLatest } from './src/schedule/publish.js';
+import { log } from './src/log.js';
+
+dotenv.config();
+
+/*
+
+  Map file schema
+
+  {
+    "latest": "4880",
+    "terms": {
+      "4880": {
+        "name": "2022 Fall",
+        "updated": "1665530188801"
+      }
+    }
+  }
+
+ */
+
+const dataMapFile = join(homedir(), 'paper-map.json');
 
 const argv = yargs(process.argv.slice(2))
   .version(false)
@@ -31,19 +58,50 @@ const argv = yargs(process.argv.slice(2))
         describe: 'Print a comparison of old and new data',
         type: 'boolean',
       })
-      .option('compare-verbose', {
+      .option('compareVerbose', {
         alias: 'C',
         describe: 'Print a detailed comparison of old and new data',
         type: 'boolean',
       })
   )
-  .command('schedule', 'Parse schedule course data', (yargs) =>
-    yargs.option('out', {
-      alias: 'o',
-      describe: 'Output file',
-      demandOption: true,
-      type: 'string',
-    })
+  .command(
+    'schedule',
+    'Parse schedule course data for the latest term',
+    (yargs) =>
+      yargs
+        .option('out', {
+          alias: 'o',
+          describe: 'Output file',
+          type: 'string',
+        })
+        .option('term', {
+          alias: 't',
+          describe: 'Fetch data for a specific term ID',
+          type: 'string',
+        })
+        .option('min', {
+          alias: 'm',
+          describe: 'Minified output file',
+          type: 'string',
+        })
+        .option('publish', {
+          alias: 'p',
+          describe:
+            'Publish obtained data to the CDN and update map file ("latest" determined automatically, or unchanged if the term option is specified).',
+          type: 'boolean',
+        })
+        .option('manualPublish', {
+          alias: 'P',
+          describe:
+            'Publish the provided file to the CDN (term "0", name "manual")',
+          type: 'string',
+          nargs: 1,
+        })
+        .option('latest', {
+          alias: 'l',
+          describe:
+            'Update the map file with a new latest term ID (no fetching or parsing done).',
+        })
   )
   .help('h')
   .alias('h', 'help')
@@ -53,7 +111,7 @@ const argv = yargs(process.argv.slice(2))
 const command = argv._[0];
 
 if (command === 'plan') {
-  const { out, prev, next, compare, 'compare-verbose': compareVerbose } = argv;
+  const { out, prev, next, compare, compareVerbose } = argv;
   const data = parsePlan(prev, next);
   if (!data) {
     process.exit(1);
@@ -63,5 +121,44 @@ if (command === 'plan') {
 
   if (compare || compareVerbose) {
     comparePlan(oldData, newData, compareVerbose);
+  }
+}
+
+if (command === 'schedule') {
+  const { out, term, min, publish, manualPublish, latest } = argv;
+  if (latest) {
+    setMapFileLatest(dataMapFile, latest);
+  } else if (manualPublish) {
+    const data = JSON.parse(fs.readFileSync(manualPublish));
+    publishSchedule(
+      dataMapFile,
+      data,
+      { term: '0', name: 'manual' },
+      false
+    ).catch((err) => {
+      log.failure(err, 0, true).finally(() => process.exit(1));
+    });
+  } else {
+    parseSchedule(term)
+      .then(({ data, term }) => {
+        if (!data) {
+          process.exit(1);
+        }
+        if (out) {
+          fs.writeFileSync(out, JSON.stringify(data, null, 2));
+        }
+        if (min) {
+          fs.writeFileSync(min, JSON.stringify(data));
+        }
+
+        if (publish) {
+          publishSchedule(dataMapFile, data, term, true).catch((err) => {
+            log.failure(err, 0, true).finally(() => process.exit(1));
+          });
+        }
+      })
+      .catch((err) => {
+        log.failure(err, 0, true).finally(() => process.exit(1));
+      });
   }
 }
