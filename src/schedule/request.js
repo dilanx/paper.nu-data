@@ -135,7 +135,7 @@ export async function getAllClasses(term, group, subject) {
       enrl_req = clean(ENRL_REQ_VALUE);
     }
 
-    data[course_id].sections.push({
+    data[course_id].s.push({
       i: section_id,
       r: instructors,
       t: title,
