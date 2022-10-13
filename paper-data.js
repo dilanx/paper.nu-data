@@ -43,7 +43,7 @@ const argv = yargs(process.argv.slice(2))
         type: 'string',
       })
       .option('prev', {
-        alias: 'p',
+        alias: 'r',
         describe: 'Old data file (json)',
         demandOption: true,
         type: 'string',
