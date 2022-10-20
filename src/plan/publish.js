@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { log } from '../log.js';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
