@@ -132,7 +132,7 @@ if (command === 'plan') {
   }
 
   if (publish) {
-    publishPlan(newData).catch((err) => {
+    publishPlan(dataMapFile, newData).catch((err) => {
       log.failure(err, 0, true).finally(() => process.exit(1));
     });
   }

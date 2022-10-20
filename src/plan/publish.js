@@ -1,7 +1,7 @@
 import { log } from '../log.js';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 
-export async function publish(data) {
+export async function publish(dataMapFile, data) {
   await log.task(`Publishing plan data...`);
 
   await log.subtask(`Uploading data to CDN...`, 1);
@@ -25,6 +25,12 @@ export async function publish(data) {
   await s3Client.send(new PutObjectCommand(params));
 
   await log.success(`Data uploaded.`, 1);
+
+  await log.subtask(`Updating map file...`, 1);
+  const map = JSON.parse(fs.readFileSync(dataMapFile));
+  map.plan = `${Date.now()}`;
+  fs.writeFileSync(dataMapFile, JSON.stringify(map));
+  await log.success(`Map file updated.`, 1);
 
   await log.success(`Published plan data.`);
 }
