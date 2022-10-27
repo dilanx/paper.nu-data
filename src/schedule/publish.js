@@ -5,7 +5,7 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 export function setMapFileLatest(dataMapFile, termId) {
   log.task(`Updating map file with new latest term ${termId}...`);
   const map = JSON.parse(fs.readFileSync(dataMapFile));
-  map.latest = termId;
+  map.latest = `${termId}`;
   fs.writeFileSync(dataMapFile, JSON.stringify(map));
   log.success('Map file updated.');
 }
@@ -42,7 +42,7 @@ export async function publish(dataMapFile, data, { term, name }, isLatest) {
     updated: `${Date.now()}`,
   };
   if (isLatest) {
-    map.latest = term;
+    map.latest = `${term}`;
   }
   fs.writeFileSync(dataMapFile, JSON.stringify(map));
   await log.success(`Map file updated.`, 1);
