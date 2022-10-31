@@ -56,7 +56,6 @@ export async function getAllClasses(term, group, subject) {
     json?.['NW_CD_DTL_ALLCLS_RESP']?.['DATE_VISIBLE_IN_SES'];
   if (dateStartString) {
     const dateStart = new Date(dateStartString);
-    dateStart.setTime(dateStart.getTime() + 24 * 60 * 60 * 1000);
     const today = new Date();
 
     if (dateStart.getTime() > today.getTime()) {
