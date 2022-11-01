@@ -28,7 +28,7 @@ export async function getAcademicGroups(term) {
     (group) => group['ACAD_GROUP']
   );
 
-  if (!groups?.includes('KGSM')) {
+  if (groups && !groups.includes('KGSM')) {
     groups.push('KGSM');
   }
 
