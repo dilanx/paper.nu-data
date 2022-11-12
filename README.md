@@ -59,6 +59,8 @@ To significantly reduce data size, repeated keys are shortened. For example, ins
 | c     | component    |
 | a     | capacity     |
 | q     | enrl_req     |
+| p     | descriptions |
+| o     | distros      |
 
 #### Instructors
 

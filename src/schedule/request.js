@@ -1,4 +1,4 @@
-import { parseMeetingTime, clean } from './util.js';
+import { parseMeetingTime, clean, parseDistros } from './util.js';
 import fetch from 'node-fetch';
 
 const SERVER = 'https://northwestern-prod.apigee.net';
@@ -140,6 +140,33 @@ export async function getAllClasses(term, group, subject) {
       enrl_req = clean(ENRL_REQ_VALUE);
     }
 
+    let descriptions;
+
+    if (s['DESCRIPTION'] && s['DESCRIPTION'].length > 0) {
+      const { DESCR_AREA } = s['DESCRIPTION'][0];
+      if (DESCR_AREA && DESCR_AREA.length > 0) {
+        for (const { DESCRAREA_NAME, DESCRAREA_VALUE } of DESCR_AREA) {
+          const descName = clean(DESCRAREA_NAME);
+          const descValue = clean(DESCRAREA_VALUE);
+          if (descName && descValue) {
+            if (!descriptions) {
+              descriptions = [];
+            }
+            descriptions.push([descName, descValue]);
+          }
+        }
+      }
+    }
+
+    let distros;
+
+    if (s['CLASS_ATTRIBUTES'] && s['CLASS_ATTRIBUTES'].length > 0) {
+      const { CRSE_ATTR_VALUE } = s['CLASS_ATTRIBUTES'][0];
+      if (CRSE_ATTR_VALUE) {
+        distros = parseDistros(CRSE_ATTR_VALUE);
+      }
+    }
+
     s['ASSOCIATED_CLASS']?.forEach((a) => {
       const a_section = a['SECTION'];
       const a_component = a['COMPONENT'];
@@ -182,6 +209,7 @@ export async function getAllClasses(term, group, subject) {
         d: start_date,
         e: end_date,
         c: a_component,
+        o: distros,
       });
     });
 
@@ -201,6 +229,8 @@ export async function getAllClasses(term, group, subject) {
       c: component,
       a: capacity,
       q: enrl_req,
+      p: descriptions,
+      o: distros,
     });
 
     data[course_id].s = data[course_id].s.sort(

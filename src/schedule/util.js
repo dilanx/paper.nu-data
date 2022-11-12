@@ -47,3 +47,27 @@ export function clean(s) {
   }
   return s;
 }
+
+export function parseDistros(s) {
+  s = s.toLowerCase();
+
+  let d = '';
+
+  const distros = {
+    natural: 1,
+    formal: 2,
+    social: 3,
+    historical: 4,
+    ethics: 5,
+    literature: 6,
+    interdisciplinary: 7,
+  };
+
+  for (const distro in distros) {
+    if (s.includes(distro)) {
+      d += distros[distro];
+    }
+  }
+
+  return d || undefined;
+}
