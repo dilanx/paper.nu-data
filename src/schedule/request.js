@@ -79,6 +79,7 @@ export async function getAllClasses(term, group, subject) {
   for (const s of sections) {
     const course_id = s['CRSE_ID'];
     const title = clean(s['COURSE_TITLE']);
+    const topic = clean(s['TOPIC']);
     const number = s['CATALOG_NBR'];
     const section = s['SECTION'];
     if (!data[course_id]) {
@@ -107,24 +108,23 @@ export async function getAllClasses(term, group, subject) {
       }));
     }
 
-    let room;
-    let meeting_days;
-    let start_time, end_time;
+    let room = [];
+    let meeting_days = [];
+    let start_time = [];
+    let end_time = [];
 
     if (s['CLASS_MTG_INFO'] && s['CLASS_MTG_INFO'].length > 0) {
-      const { ROOM, MEETING_TIME } = s['CLASS_MTG_INFO'][0];
-      if (ROOM) {
-        room = clean(ROOM);
-      }
-      if (MEETING_TIME) {
+      for (const { ROOM, MEETING_TIME } of s['CLASS_MTG_INFO']) {
+        room.push(clean(ROOM) || null);
+
         const {
           meeting_days: md,
           start_time: st,
           end_time: et,
         } = parseMeetingTime(clean(MEETING_TIME));
-        meeting_days = md;
-        start_time = st;
-        end_time = et;
+        meeting_days.push(md || null);
+        start_time.push(st || null);
+        end_time.push(et || null);
       }
     }
 
@@ -177,23 +177,22 @@ export async function getAllClasses(term, group, subject) {
       if (data[course_id].s.some((x) => x.i === a_section_id)) {
         return;
       }
-      let a_room;
-      let a_meeting_days;
-      let a_start_time, a_end_time;
+      let a_room = [];
+      let a_meeting_days = [];
+      let a_start_time = [];
+      let a_end_time = [];
       if (a['CLASS_MTG_INFO2'] && a['CLASS_MTG_INFO2'].length > 0) {
-        const { ROOM, MEETING_TIME } = a['CLASS_MTG_INFO2'][0];
-        if (ROOM) {
-          a_room = clean(ROOM);
-        }
-        if (MEETING_TIME) {
+        for (const { ROOM, MEETING_TIME } of a['CLASS_MTG_INFO2']) {
+          a_room.push(clean(ROOM) || null);
+
           const {
             meeting_days: md,
             start_time: st,
             end_time: et,
           } = parseMeetingTime(clean(MEETING_TIME));
-          a_meeting_days = md;
-          a_start_time = st;
-          a_end_time = et;
+          a_meeting_days.push(md || null);
+          a_start_time.push(st || null);
+          a_end_time.push(et || null);
         }
       }
       data[course_id].s.push({
@@ -217,6 +216,7 @@ export async function getAllClasses(term, group, subject) {
       i: section_id,
       r: instructors,
       t: title,
+      k: topic,
       u: subject,
       n: number,
       s: section,

@@ -6,69 +6,79 @@ To significantly reduce data size, repeated keys are shortened. For example, ins
 
 ### Plan data
 
-#### Majors
+#### Major
 
-| Short | Long    |
-| ----- | ------- |
-| i     | id      |
-| c     | color   |
-| d     | display |
+| Short | Long    | Type   |
+| ----- | ------- | ------ |
+| i     | id      | string |
+| c     | color   | string |
+| d     | display | string |
 
-#### Courses
+#### Course
 
-| Short | Long        |
-| ----- | ----------- |
-| i     | id          |
-| n     | name        |
-| u     | units       |
-| r     | repeatable  |
-| d     | description |
-| p     | prereqs     |
-| s     | distros     |
-| l     | placeholder |
+| Short | Long        | Type    |
+| ----- | ----------- | ------- |
+| i     | id          | string  |
+| n     | name        | string  |
+| u     | units       | string  |
+| r     | repeatable  | boolean |
+| d     | description | string  |
+| p     | prereqs     | string  |
+| s     | distros     | string  |
+| l     | placeholder | boolean |
 
 ### Schedule data
 
-#### Courses
+#### Course
 
-| Short | Long      |
-| ----- | --------- |
-| i     | course_id |
-| c     | school    |
-| t     | title     |
-| u     | subject   |
-| n     | number    |
-| s     | sections  |
+| Short | Long      | Type                  |
+| ----- | --------- | --------------------- |
+| i     | course_id | string                |
+| c     | school    | string                |
+| t     | title     | string                |
+| u     | subject   | string                |
+| n     | number    | string                |
+| s     | sections  | [Section](#section)[] |
 
-#### Sections
+#### Section
 
-| Short | Long         |
-| ----- | ------------ |
-| i     | section_id   |
-| r     | instructors  |
-| t     | title        |
-| u     | subject      |
-| n     | number       |
-| s     | section      |
-| m     | meeting_days |
-| x     | start_time   |
-| y     | end_time     |
-| l     | room         |
-| d     | start_date   |
-| e     | end_date     |
-| c     | component    |
-| a     | capacity     |
-| q     | enrl_req     |
-| p     | descs        |
-| o     | distros      |
+| Short | Long         | Type                         |
+| ----- | ------------ | ---------------------------- |
+| i     | section_id   | string                       |
+| r     | instructors  | [Instructor](#instructor)[]  |
+| t     | title        | string                       |
+| k     | topic        | string                       |
+| u     | subject      | string                       |
+| n     | number       | string                       |
+| s     | section      | string                       |
+| m     | meeting_days | \(string \| null\)[]         |
+| x     | start_time   | \([Time](#time) \| null\)[]  |
+| y     | end_time     | \([Time](#time) \| null \)[] |
+| l     | room         | string[]                     |
+| d     | start_date   | string                       |
+| e     | end_date     | string                       |
+| c     | component    | string                       |
+| a     | capacity     | int                          |
+| q     | enrl_req     | string                       |
+| p     | descs        | string[][]                   |
+| o     | distros      | string                       |
 
-#### Instructors
+#### Instructor
 
-| Short | Long           |
-| ----- | -------------- |
-| n     | name           |
-| p     | phone          |
-| a     | campus_address |
-| o     | office_hours   |
-| b     | bio            |
-| u     | url            |
+| Short | Long           | Type   |
+| ----- | -------------- | ------ |
+| n     | name           | string |
+| p     | phone          | string |
+| a     | campus_address | string |
+| o     | office_hours   | string |
+| b     | bio            | string |
+| u     | url            | string |
+
+#### Time
+
+| Short | Long\* | Type |
+| ----- | ------ | ---- |
+| h     | hour   | int  |
+| m     | minute | int  |
+
+\* These are not converted from short to long. They remain in their short form.

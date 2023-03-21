@@ -29,6 +29,9 @@ function parseTime(time) {
 
 export function parseMeetingTime(meetingTime) {
   // MoWeFri 1:00PM - 1:50PM
+  if (!meetingTime) {
+    return {};
+  }
   const [meetingDays, start, , end] = meetingTime.split(' ');
   if (!meetingDays || !start || !end) {
     return {};
