@@ -198,6 +198,7 @@ export async function getAllClasses(term, group, subject) {
       data[course_id].s.push({
         i: a_section_id,
         t: title,
+        k: topic,
         u: subject,
         n: number,
         s: a_section,
