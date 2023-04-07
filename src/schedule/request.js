@@ -17,22 +17,36 @@ export async function getTerms() {
   return terms;
 }
 
-export async function getAcademicGroups(term) {
-  const response = await fetch(
-    `${SERVER}/student-system-acadgroupget/${term}`,
-    { headers: { apikey: process.env.API_KEY } }
-  );
-  const json = await response.json();
+export async function getAcademicGroups(_) {
+  // const response = await fetch(
+  //   `${SERVER}/student-system-acadgroupget/${term}`,
+  //   { headers: { apikey: process.env.API_KEY } }
+  // );
+  // const json = await response.json();
 
-  const groups = json?.['NW_CD_ACADGROUP_RESP']?.['ACADGROUPS']?.map(
-    (group) => group['ACAD_GROUP']
-  );
+  // const groups = json?.['NW_CD_ACADGROUP_RESP']?.['ACADGROUPS']?.map(
+  //   (group) => group['ACAD_GROUP']
+  // );
 
-  if (groups && !groups.includes('KGSM')) {
-    groups.push('KGSM');
-  }
+  // if (groups && !groups.includes('KGSM')) {
+  //   groups.push('KGSM');
+  // }
 
-  return groups;
+  //return groups;
+
+  return [
+    'MUSIC',
+    'LAW',
+    'MEAS',
+    'JOUR',
+    'DOHA',
+    'SPCH',
+    'SESP',
+    'UC',
+    'TGS',
+    'WCAS',
+    'KGSM',
+  ];
 }
 
 export async function getSubjects(term, group) {
