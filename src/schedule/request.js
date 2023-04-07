@@ -54,6 +54,9 @@ export async function getAllClasses(term, group, subject) {
     `${SERVER}/student-system-classdescrallcls/${term}/${group}/${subject}`,
     { headers: { apikey: process.env.API_KEY } }
   );
+  if (response.status >= 500) {
+    return [];
+  }
   const json = await response.json();
 
   const dateStartString =
