@@ -12,6 +12,8 @@ export async function getTerms() {
   const terms = json?.['NW_CD_TERM_RESP']?.['TERM']?.map((term) => ({
     term: term['TermID'],
     name: term['TermDescr'],
+    start: term['TermBeginDt'],
+    end: term['TermEndDt'],
   }));
 
   return terms;

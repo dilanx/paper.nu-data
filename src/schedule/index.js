@@ -24,7 +24,7 @@ export async function parse(oneTerm) {
     terms = terms.filter((term) => term.term === oneTerm);
   }
 
-  for (const { term, name } of terms) {
+  for (const { term, name, start, end } of terms) {
     await log.subtask(`Fetching data for ${name} (${term})...`, 1);
 
     const termData = [];
@@ -77,6 +77,8 @@ export async function parse(oneTerm) {
       term: {
         term,
         name,
+        start,
+        end,
       },
     };
   }

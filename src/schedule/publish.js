@@ -10,7 +10,12 @@ export function setMapFileLatest(dataMapFile, termId) {
   log.success('Map file updated.');
 }
 
-export async function publish(dataMapFile, data, { term, name }, isLatest) {
+export async function publish(
+  dataMapFile,
+  data,
+  { term, name, start, end },
+  isLatest
+) {
   await log.task(`Publishing data for term ${term} (${name})...`, true);
 
   await log.subtask(`Uploading data to CDN...`, 1);
@@ -40,6 +45,8 @@ export async function publish(dataMapFile, data, { term, name }, isLatest) {
   map.terms[term] = {
     name,
     updated: `${Date.now()}`,
+    start,
+    end,
   };
   if (isLatest) {
     map.latest = `${term}`;
