@@ -1,15 +1,15 @@
 import fs from 'fs';
 import yargs from 'yargs';
-import { parse as parsePlan } from './lib/plan/index.js';
-import { parse as parseSchedule } from './lib/schedule/index.js';
-import { publish as publishPlan } from './lib/plan/publish.js';
-import { publish as publishSchedule } from './lib/schedule/publish.js';
-import { compare as comparePlan } from './lib/plan/compare.js';
+import { parse as parsePlan } from './src/plan/index.js';
+import { parse as parseSchedule } from './src/schedule/index.js';
+import { publish as publishPlan } from './src/plan/publish.js';
+import { publish as publishSchedule } from './src/schedule/publish.js';
+import { compare as comparePlan } from './src/plan/compare.js';
 import * as dotenv from 'dotenv';
 import { join } from 'path';
 import { homedir } from 'os';
-import { setMapFileLatest } from './lib/schedule/publish.js';
-import { log } from './lib/log.js';
+import { setMapFileLatest } from './src/schedule/publish.js';
+import { log } from './src/log.js';
 
 dotenv.config();
 
