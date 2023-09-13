@@ -150,10 +150,15 @@ if (command === 'schedule') {
         dataMapFile,
         data,
         { term: '0', name: 'manual' },
+        false,
         false
       );
     } else {
-      const { data, term: newTerm } = await parseSchedule(term);
+      const {
+        data,
+        term: newTerm,
+        subjectsUpdated,
+      } = await parseSchedule(term);
 
       if (!data) {
         process.exit(1);
@@ -166,7 +171,13 @@ if (command === 'schedule') {
       }
 
       if (publish) {
-        await publishSchedule(dataMapFile, data, newTerm, true);
+        await publishSchedule(
+          dataMapFile,
+          data,
+          newTerm,
+          true,
+          updatedSubjects
+        );
       }
     }
   };
