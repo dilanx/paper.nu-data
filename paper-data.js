@@ -176,7 +176,7 @@ if (command === 'schedule') {
           data,
           newTerm,
           true,
-          updatedSubjects
+          subjectsUpdated
         );
       }
     }
