@@ -91,7 +91,7 @@ async function main() {
     if (argv.publish) {
       await publish({
         planData,
-        scheduleData,
+        scheduleData: data,
         term,
         isLatestTerm: true,
         subjectsUpdated,
