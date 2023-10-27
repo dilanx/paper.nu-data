@@ -1,6 +1,5 @@
-import { includeSubject, loadSubjects } from '../subjects.js';
-import { parseMeetingTime, clean, parseDistros } from './util.js';
 import fetch from 'node-fetch';
+import { clean, parseDistros, parseMeetingTime } from '../../lib/util.js';
 
 const SERVER = 'https://northwestern-prod.apigee.net';
 

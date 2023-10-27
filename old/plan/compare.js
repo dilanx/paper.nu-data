@@ -8,19 +8,19 @@ function compareMajors(oldMajors, newMajors, detailed) {
   const removed = o.filter((x) => !n.includes(x));
   const idChanged = o.filter((x) => oldMajors[x].id !== newMajors[x].id);
 
-  log.cond(
+  await log.cond(
     `Added ${added.length} majors${
       added.length && detailed ? `: ${added.join(', ')}` : '.'
     }`
   );
-  log.cond(
+  await log.cond(
     `Removed ${removed.length} majors${
       removed.length && detailed ? `: ${removed.join(', ')}` : '.'
     }`,
     removed.length === 0
   );
 
-  log.cond(
+  await log.cond(
     `Changed ${idChanged.length} major ids${
       idChanged.length && detailed ? `: ${idChanged.join(', ')}` : '.'
     }`,
@@ -41,12 +41,12 @@ function compareCourses(
   const added = nId.filter((x) => !oId.includes(x));
   const removed = oId.filter((x) => !nId.includes(x));
 
-  log.cond(
+  await log.cond(
     `Added ${added.length} courses${
       added.length && detailed ? `: ${added.join(', ')}` : '.'
     }`
   );
-  log.cond(
+  await log.cond(
     `Removed ${removed.length} courses${
       removed.length && detailed ? `: ${removed.join(', ')}` : '.'
     }`
@@ -58,12 +58,12 @@ function compareCourses(
   const addedLegacy = nLegacy.filter((x) => !oLegacy.includes(x));
   const removedLegacy = oLegacy.filter((x) => !nLegacy.includes(x));
 
-  log.cond(
+  await log.cond(
     `Added ${addedLegacy.length} legacy courses.`,
     addedLegacy.length === removed.length
   );
 
-  log.cond(
+  await log.cond(
     `Removed ${removedLegacy.length} legacy courses.`,
     removedLegacy.length === 0
   );

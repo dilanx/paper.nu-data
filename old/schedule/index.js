@@ -35,7 +35,7 @@ export async function parse(oneTerm) {
     const termData = [];
     const groups = await getAcademicGroups(term);
     if (!groups) {
-      log.nothing(`No data (no academic groups).`, 1);
+      await log.nothing(`No data (no academic groups).`, 1);
       continue;
     }
 
@@ -76,15 +76,15 @@ export async function parse(oneTerm) {
 
         const classes = await getAllClasses(term, group, subject);
         if (classes === 'time') {
-          log.nothing(`No data (courses not yet available).`, 2);
-          log.skip(
+          await log.nothing(`No data (courses not yet available).`, 2);
+          await log.skip(
             `Courses for ${group} (term ${term}) must be unavailable in CAESAR.`,
             2
           );
           continue g;
         }
         if (!classes || classes.length === 0) {
-          log.nothing(`No data (no courses found).`, 2);
+          await log.nothing(`No data (no courses found).`, 2);
           continue;
         }
 
@@ -94,7 +94,7 @@ export async function parse(oneTerm) {
     }
 
     if (termData.length === 0) {
-      log.nothing(`No data overall.`, 1);
+      await log.nothing(`No data overall.`, 1);
       continue;
     }
 
@@ -105,7 +105,7 @@ export async function parse(oneTerm) {
     if (saved) {
       await log.success(`Saved subject data.`, 1);
     } else {
-      log.nothing(`No new subject data to save.`, 1);
+      await log.nothing(`No new subject data to save.`, 1);
     }
 
     await log.success(

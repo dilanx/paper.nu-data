@@ -1,192 +1,144 @@
-import fs from 'fs';
-import yargs from 'yargs';
-import { parse as parsePlan } from './lib/plan/index.js';
-import { parse as parseSchedule } from './lib/schedule/index.js';
-import { publish as publishPlan } from './lib/plan/publish.js';
-import { publish as publishSchedule } from './lib/schedule/publish.js';
-import { compare as comparePlan } from './lib/plan/compare.js';
-import * as dotenv from 'dotenv';
+import 'dotenv/config';
 import { join } from 'path';
 import { homedir } from 'os';
-import { setMapFileLatest } from './lib/schedule/publish.js';
+import yargs from 'yargs';
+import { parse } from './lib/schedule.js';
+import fs from 'fs';
+import { publish } from './lib/publish.js';
 import { log } from './lib/log.js';
-
-dotenv.config();
-
-/*
-
-  Map file schema
-
-  {
-    "latest": "4880",
-    "terms": {
-      "4880": {
-        "name": "2022 Fall",
-        "updated": "1665530188801"
-      }
-    }
-  }
-
- */
-
-const dataMapFile = join(homedir(), 'paper-map.json');
+import { init } from './lib/init.js';
+import { updatePlan } from './lib/plan.js';
 
 const argv = yargs(process.argv.slice(2))
-  .version(false)
-  .usage('Usage: $0 <command> [options]')
-  .command('plan', 'Parse plan course data', (yargs) =>
-    yargs
-      .option('out', {
-        alias: 'o',
-        describe: 'Output file',
-        type: 'string',
-      })
-      .option('prev', {
-        alias: 'r',
-        describe: 'Old data file (json)',
-        demandOption: true,
-        type: 'string',
-      })
-      .option('next', {
-        alias: 'n',
-        describe: 'New data file (csv)',
-        demandOption: true,
-        type: 'string',
-      })
-      .option('compare', {
-        alias: 'c',
-        describe: 'Print a comparison of old and new data',
-        type: 'boolean',
-      })
-      .option('compareVerbose', {
-        alias: 'C',
-        describe: 'Print a detailed comparison of old and new data',
-        type: 'boolean',
-      })
-      .option('publish', {
-        alias: 'p',
-        describe: 'Publish plan data to CDN',
-        type: 'boolean',
-      })
-  )
-  .command(
-    'schedule',
-    'Parse schedule course data for the latest term',
-    (yargs) =>
-      yargs
-        .option('out', {
-          alias: 'o',
-          describe: 'Output file',
-          type: 'string',
-        })
-        .option('term', {
-          alias: 't',
-          describe: 'Fetch data for a specific term ID',
-          type: 'string',
-        })
-        .option('min', {
-          alias: 'm',
-          describe: 'Minified output file',
-          type: 'string',
-        })
-        .option('publish', {
-          alias: 'p',
-          describe:
-            'Publish obtained data to the CDN and update map file ("latest" determined automatically, or unchanged if the term option is specified).',
-          type: 'boolean',
-        })
-        .option('manualPublish', {
-          alias: 'P',
-          describe:
-            'Publish the provided file to the CDN (term "0", name "manual")',
-          type: 'string',
-          nargs: 1,
-        })
-        .option('latest', {
-          alias: 'l',
-          describe:
-            'Update the map file with a new latest term ID (no fetching or parsing done).',
-        })
-  )
+  //.version(false)
+  .version('2.0.0')
+  .usage('Usage: $0 [options]')
+  .option('dir', {
+    alias: 'd',
+    describe: 'Directory where data is stored',
+    type: 'string',
+    required: true,
+  })
+  .option('fetch', {
+    alias: 'f',
+    describe: 'Fetch and parse data',
+    type: 'boolean',
+  })
+  .option('publish', {
+    alias: 'p',
+    describe: 'Publish data',
+    type: 'boolean',
+  })
+  .option('plan', {
+    alias: 'l',
+    describe: 'Update plan data',
+    type: 'boolean',
+  })
+  .option('term', {
+    alias: 't',
+    describe: 'Fetch data for a specific term ID or latest if omitted',
+    type: 'string',
+  })
+  .option('init', {
+    alias: 'i',
+    describe: 'Initialize data directory',
+    type: 'boolean',
+    conflicts: ['fetch', 'publish', 'plan', 'term'],
+  })
+  .option('log-local-only', {
+    alias: 'L',
+    describe: 'Log only to local console',
+    type: 'boolean',
+  })
+  .option('subjects-file', {
+    alias: 'S',
+    describe:
+      'Manual path to subjects file or ~/paper-subjects.json if omitted',
+    type: 'string',
+  })
   .help('h')
   .alias('h', 'help')
-  .demandCommand(1)
-  .epilog('paper.nu data parser by Dilan Nair').argv;
+  .alias('v', 'version')
+  .epilog('paper.nu data CLI by Dilan Nair (a.dilanxd.com/p)').argv;
 
-const command = argv._[0];
-
-if (command === 'plan') {
-  const { out, prev, next, compare, compareVerbose, publish } = argv;
-  const data = parsePlan(prev, next);
-  if (!data) {
-    process.exit(1);
-  }
-  const { newData, oldData } = data;
-
-  if (out) {
-    fs.writeFileSync(out, JSON.stringify(newData, null, 2));
-  }
-
-  if (compare || compareVerbose) {
-    comparePlan(oldData, newData, compareVerbose);
-  }
-
-  if (publish) {
-    publishPlan(dataMapFile, newData).catch((err) => {
-      log.failure(err, 0, true).finally(() => process.exit(1));
-    });
-  }
+if (argv.logLocalOnly) {
+  log.logLocalOnly = true;
 }
 
-if (command === 'schedule') {
-  const { out, term, min, publish, manualPublish, latest } = argv;
+if (argv.subjectsFile) {
+  process.env.SUBJECTS_FILE = argv.subjectsFile;
+}
 
-  const runSchedule = async () => {
-    if (latest) {
-      setMapFileLatest(dataMapFile, latest);
-    } else if (manualPublish) {
-      const data = JSON.parse(fs.readFileSync(manualPublish));
-      await publishSchedule(
-        dataMapFile,
-        data,
-        { term: '0', name: 'manual' },
-        false,
-        false
-      );
-    } else {
-      const {
-        data,
-        term: newTerm,
-        subjectsUpdated,
-      } = await parseSchedule(term);
+async function main() {
+  if (argv.init) {
+    await init(argv.dir);
+    return;
+  }
+  if (argv.fetch) {
+    const { data, term, subjectsUpdated } = await parse(argv.term);
 
-      if (!data) {
-        process.exit(1);
-      }
-      if (out) {
-        fs.writeFileSync(out, JSON.stringify(data, null, 2));
-      }
-      if (min) {
-        fs.writeFileSync(min, JSON.stringify(data));
-      }
-
-      if (publish) {
-        await publishSchedule(
-          dataMapFile,
-          data,
-          newTerm,
-          true,
-          subjectsUpdated
-        );
-      }
+    if (!data) {
+      process.exit(1);
     }
-  };
 
-  runSchedule()
-    .then(() => {
-      process.exit(0);
-    })
-    .catch((err) => {
-      log.failure(err, 0, true).finally(() => process.exit(1));
-    });
+    const termId = term.term;
+
+    const filepath = join(argv.dir, `${termId}.json`);
+    fs.writeFileSync(filepath, JSON.stringify(data));
+
+    let planData = argv.plan ? await updatePlan(argv.dir, termId, data) : null;
+
+    if (argv.publish) {
+      await publish({
+        planData,
+        scheduleData,
+        term,
+        isLatestTerm: true,
+        subjectsUpdated,
+      });
+    }
+
+    return;
+  }
+
+  if (argv.plan) {
+    if (!argv.term) {
+      await log.failure('No term ID provided for plan update.');
+      process.exit(1);
+    }
+
+    await updatePlan(argv.dir, argv.term);
+    return;
+  }
+
+  // if (argv.publish) {
+  //   if (!argv.term && !argv.plan) {
+  //     await log.failure('No term ID provided for publish.');
+  //     process.exit(1);
+  //   }
+
+  //   if (argv.term) {
+
+  //   }
+
+  //   const scheduleFilepath = join(argv.dir, `${termIdToUse}.json`);
+
+  //   const scheduleData = JSON.parse(fs.readFileSync(filepath));
+
+  //   await publish({
+  //     planData: null,
+  //     scheduleData: scheduleData,
+  //     term,
+  //     isLatestTerm: true,
+  //     subjectsUpdated,
+  //   });
+  // }
 }
+
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    log.failure(err, 0, true).finally(() => process.exit(1));
+  });
