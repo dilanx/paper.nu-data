@@ -11,7 +11,7 @@ import { updatePlan } from './lib/plan.js';
 
 const argv = yargs(process.argv.slice(2))
   //.version(false)
-  .version('2.0.0')
+  .version('2.0.1')
   .usage('Usage: $0 [options]')
   .option('dir', {
     alias: 'd',
