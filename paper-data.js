@@ -1,16 +1,14 @@
 import 'dotenv/config';
-import { join } from 'path';
-import { homedir } from 'os';
-import yargs from 'yargs';
-import { parse } from './lib/schedule.js';
 import fs from 'fs';
-import { publish } from './lib/publish.js';
-import { log } from './lib/log.js';
+import { join } from 'path';
+import yargs from 'yargs';
 import { init } from './lib/init.js';
+import { log } from './lib/log.js';
 import { updatePlan } from './lib/plan.js';
+import { publish } from './lib/publish.js';
+import { parse } from './lib/schedule.js';
 
 const argv = yargs(process.argv.slice(2))
-  //.version(false)
   .version('2.0.1')
   .usage('Usage: $0 [options]')
   .option('dir', {
@@ -110,29 +108,6 @@ async function main() {
     await updatePlan(argv.dir, argv.term);
     return;
   }
-
-  // if (argv.publish) {
-  //   if (!argv.term && !argv.plan) {
-  //     await log.failure('No term ID provided for publish.');
-  //     process.exit(1);
-  //   }
-
-  //   if (argv.term) {
-
-  //   }
-
-  //   const scheduleFilepath = join(argv.dir, `${termIdToUse}.json`);
-
-  //   const scheduleData = JSON.parse(fs.readFileSync(filepath));
-
-  //   await publish({
-  //     planData: null,
-  //     scheduleData: scheduleData,
-  //     term,
-  //     isLatestTerm: true,
-  //     subjectsUpdated,
-  //   });
-  // }
 }
 
 main()
