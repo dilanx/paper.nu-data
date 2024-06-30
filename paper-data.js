@@ -93,7 +93,7 @@ async function main() {
         planData,
         scheduleData: data,
         term,
-        isLatestTerm: true,
+        isLatestTerm: !!argv.term,
         subjectsUpdated,
       });
     }
