@@ -100,12 +100,31 @@ async function main() {
   }
 
   if (argv.plan) {
-    if (!argv.term) {
-      await log.failure('No term ID provided for plan update.');
+    if (!argv.term && !argv.publish) {
+      await log.failure('At least one of --term or --publish must be set');
       process.exit(1);
     }
 
-    await updatePlan(argv.dir, argv.term);
+    let planData = null;
+
+    if (argv.term) {
+      planData = await updatePlan(argv.dir, argv.term);
+    }
+
+    if (argv.publish) {
+      if (!planData) {
+        const filepath = join(argv.dir, `plan.json`);
+        planData = JSON.parse(fs.readFileSync(filepath));
+      }
+
+      if (!planData) {
+        await log.failure('Plan data not found');
+        process.exit(1);
+      }
+
+      await publish({ planData });
+    }
+
     return;
   }
 }
