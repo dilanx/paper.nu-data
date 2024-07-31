@@ -9,7 +9,6 @@ import { publish } from './lib/publish.js';
 import { parse } from './lib/schedule.js';
 
 const argv = yargs(process.argv.slice(2))
-  .version('2.0.1')
   .usage('Usage: $0 [options]')
   .option('dir', {
     alias: 'd',
