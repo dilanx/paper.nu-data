@@ -9,7 +9,7 @@ import { publish } from './lib/publish.js';
 import { parse } from './lib/schedule.js';
 
 const argv = yargs(process.argv.slice(2))
-  .version()
+  .version(JSON.parse(fs.readFileSync('package.json')).version)
   .usage('Usage: $0 [options]')
   .option('dir', {
     alias: 'd',
