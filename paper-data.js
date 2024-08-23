@@ -92,7 +92,7 @@ async function main() {
       await publish({
         planData,
         scheduleData: data,
-        term,
+        termData: term,
         isLatestTerm: !argv.term,
         subjectsUpdated,
       });
